@@ -9,6 +9,7 @@ using std::getline;
 using std::ws;
 using std::string;
 using std::ifstream;
+using std::fstream;
 using std::ofstream;
 using std::ios_base;
 using std::endl;
@@ -60,49 +61,53 @@ int main()
     //Program:
 
     cout<<"Welcome to SAT Bank"<<endl;
-    cout<<"\nWhat do you want to do?"<<endl;
-    cout<<"Login (1) or Sign up (2): ";
-    cin>>choice0;
-    switch(choice0)
-    {
-        case 1:
+    choose0:
+    do{
+        cout<<"\nWhat do you want to do?"<<endl;
+        cout<<"Login (1) or Sign up (2): ";
+        cin>>choice0;
+        switch(choice0)
         {
-            cout<<"Enter Name: ";
-            cin>>name1;
-            cout<<"Enter Password: ";
-            cin>>password1;
-            ifstream readFile("login_details.data");
-            while(readFile>>name0>>password0>>balance0)
+            choose1:
+            case 1:
             {
-                if(name1 == name0 && password1 == password0)
+                cout<<"Enter Name: ";
+                cin>>name1;
+                cout<<"Enter Password: ";
+                cin>>password1;
+                ifstream readFile("login_details.data");
+                ofstream tempFile("temp.data");
+                while(readFile>>name0>>password0>>balance0)
                 {
-                    goto banking;
+                    if(name1 == name0 && password1 == password0)
+                    {
+                        goto banking;
+                    }
                 }
-                else
-                {
-                    cout<<"User not found!"<<endl;
-                }
+                cout << "\nInvalid login details!" << endl;
+                goto choose1;
+            break;
             }
-        break;
+            case 2:
+            {
+                cout<<"Enter Name: ";
+                cin>>name1;
+                cout<<"Enter Password: ";
+                cin>>password1;
+                cout<<"Confirm Password: ";
+                cin>>password1;
+                cout<<"Enter Balance: ";
+                cin>>balance1;
+                ofstream writeFile("login_details.data",ios_base::app);
+                writeFile<<'\n'<<name1<<' '<<password1<<' '<<balance1;
+                goto choose0;
+            break;
+            }
+            default:
+                cout<<"Invalid Choice!"<<endl;
+            break;
         }
-        case 2:
-        {
-            cout<<"Enter Name: ";
-            cin>>name1;
-            cout<<"Enter Password: ";
-            cin>>password1;
-            cout<<"Confirm Password: ";
-            cin>>password1;
-            cout<<"Enter Balance: ";
-            cin>>balance1;
-            ofstream writeFile("login_details.data",ios_base::app);
-            writeFile<<'\n'<<name1<<' '<<password1<<' '<<balance1;
-        break;
-        }
-        default:
-            cout<<"Invalid Choice!"<<endl;
-        break;
-    }
+    }while(choice0!=2);
     banking:
         Bank Account(balance0);
         do
@@ -122,6 +127,7 @@ int main()
                 {
                     cout<<"\nAmount To Be Withdrawn: ";
                     cin>>withdraw;
+                    
                     Account.withdraw_amount(withdraw);
 
                 break;
@@ -135,6 +141,20 @@ int main()
                 }
                 case 4:
                 {
+                    ifstream readFile("login_details.data");
+                    ofstream tempFile("temp.data");
+                    while (readFile>>name0>>password0>>balance0) {
+                        if (name1 == name0 && password1 == password0) {
+                            tempFile<<name1<<' '<<password1<<' '<<Account.balance_check()<<endl;
+                        } 
+                        else {
+                            tempFile<<name0<<' '<<password0<<' '<<balance0<<endl;
+                        }
+                    }
+                    readFile.close();
+                    tempFile.close();
+                    remove("login_details.data");
+                    rename("temp.data", "login_details.data");
                     cout<<"\nThank You For Choosing SAT BANK!";
                     cout<<"\n";
                 break;
